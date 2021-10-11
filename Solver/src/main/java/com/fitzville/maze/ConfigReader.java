@@ -2,37 +2,42 @@ package com.fitzville.maze;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Read the CSV config file.
+ * Each line represents a room.  The first number on the line is the room number.  The remaining numbers on that line
+ * represent the destination room numbers from walking through a door.
+ *
+ * The List that is returned is indexed to match the room numbers.  I inserted a dummy empty list at index 0.
+ */
 public class ConfigReader
 {
     public List<List<Integer>> read()
     {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("pages.csv");
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
+        final var config = new ArrayList<List<Integer>>();
 
-        String s;
-        List<List<Integer>> config = new ArrayList<>();
-
-        // bump up the list so that it's 1 based, because that's what the config is.
-        config.add(0, new ArrayList<>());
-
-        try
+        try(final var is = getClass().getClassLoader().getResourceAsStream("pages.csv");
+            final var isr = new InputStreamReader(is);
+            final var br = new BufferedReader(isr);)
         {
-            while ((s = br.readLine()) != null)
+            String line;
+
+            // bump up the list so that it's 1 based.  This is a dummy record at index 0.
+            config.add(0, new ArrayList<>());
+
+            while ((line = br.readLine()) != null)
             {
-                List<Integer> doorpages = new ArrayList<>();
-                String[] doorpagestring = s.split(",");
+                final var doorpages = new ArrayList<Integer>();
+                final var doorpagestring = line.split(",");
                 for (int index = 0; index < doorpagestring.length; index++)
                 {
-                    int i = Integer.parseInt(doorpagestring[index]);
+                    final var i = Integer.parseInt(doorpagestring[index]);
                     if (index == 0)
                     {
-                        assert(index == i);
+                        assert (index == i);
                         // ignore... the index number will be handled by the arraylist
                     }
                     else
@@ -43,7 +48,6 @@ public class ConfigReader
 
                 config.add(doorpages);
             }
-
         }
         catch(IOException e)
         {
@@ -52,5 +56,4 @@ public class ConfigReader
 
         return config;
     }
-
 }
